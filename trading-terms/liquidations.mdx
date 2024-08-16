@@ -1,0 +1,50 @@
+---
+title: Liquidations
+icon: 'file-signature'
+---
+
+## **Understanding Liquidation on LogX Network**
+
+Liquidation is a critical mechanism in leveraged trading, especially within the context of derivatives markets like those on LogX Network. It acts as a safeguard to ensure that traders maintain sufficient collateral to cover their positions, thereby protecting the broader market from the risks associated with highly leveraged trades. Here’s a comprehensive overview of what liquidation is and how it is implemented on LogX Network.
+
+## **What is Liquidation?**
+
+Liquidation occurs when a trader's account balance falls below the required margin to maintain their open positions. In leveraged trading, traders borrow funds to open larger positions than their collateral would otherwise allow. This leverage amplifies both potential profits and potential losses.
+
+When the market moves against a trader's position, the value of their collateral may no longer be sufficient to cover the potential losses. To prevent the account from falling into a negative balance, the platform automatically closes the trader's positions. This process is known as liquidation.
+
+### **Key Concepts in Liquidation**
+
+-   **Margin:** The amount of collateral required to maintain an open position.
+-   **Initial Margin:** The minimum amount of collateral needed to open a new position.
+-   **Maintenance Margin:** The minimum amount of collateral required to keep an open position. If the collateral falls below this level, liquidation is triggered.
+-   **Equity:** The total value of a trader’s account, including spot balances and unrealized profits or losses from open positions.
+
+## **How LogX Network Handles Liquidation**
+
+LogX Network employs a sophisticated and automated liquidation system designed to protect both traders and the broader market ecosystem. Our approach ensures that liquidation processes are handled efficiently and fairly, minimizing risks and maintaining market stability.
+
+### **1. Account Monitoring and Categorization**
+
+LogX Network continuously monitors all trading accounts to ensure they remain above the required maintenance margin. To streamline this process, accounts are categorized into different pools based on their current equity and margin status:
+
+-   **Healthy Subaccounts:** These accounts have sufficient collateral and are not at risk of liquidation. They are regularly checked to ensure they remain above the initial margin requirement.
+-   **Below Initial Margin Subaccounts:** Accounts in this category have fallen below the initial margin requirement but are not yet below the maintenance margin. These accounts are restricted from opening new positions but can add collateral or close positions to restore margin levels.
+-   **Below Maintenance Margin Subaccounts:** These accounts are below the maintenance margin but still have positive equity. They are the most likely to be liquidated and are closely monitored. Only deposits are allowed; no new positions can be opened, and existing positions cannot be closed manually.
+-   **Negative Balance Subaccounts:** Accounts that have fallen into a negative equity position are prioritized for liquidation to minimize losses. These accounts are immediately flagged for liquidation, with all orders being canceled and positions closed as quickly as possible.
+
+### **2. Liquidation Process**
+
+When an account is flagged for liquidation, LogX Network initiates a series of automated steps to close the positions:
+
+-   **Cancelation of Open Orders:** Any pending orders in the subaccount are immediately canceled to prevent further exposure to market movements.
+-   **Placing Liquidation Orders:** Liquidation orders are placed on behalf of the account to close the positions at the best available market prices. These orders are treated similarly to market orders, ensuring quick execution.
+-   **Equity Check and Account Status Update:** Before finalizing the liquidation, the system checks if the account still falls below the maintenance margin. Depending on the result, the account is either moved back to the healthy pool or remains flagged for further liquidation.
+
+### **3. Data Utilization in Liquidation**
+
+To execute liquidations effectively, LogX Network integrates real-time data from various sources:
+
+-   **Spot and Perp Balances:** The total balance of all assets in the account, including spot and perpetual contracts, is calculated to determine the account’s equity.
+-   **Oracle Prices:** External price feeds (oracles) provide accurate, up-to-date market prices, which are essential for calculating unrealized profit and loss (P&L) on open positions.
+-   **Funding Rates:** Current funding rates are factored into the calculation of unrealized funding fees, which impact the total equity of the account.

@@ -1,0 +1,213 @@
+---
+title: User Authentication
+icon: "lock"  
+---
+
+User authentication in the LogX Network involves a series of steps that ensure secure access and interaction with the platform. This step-by-step guide to the authentication process along with details about the underlying flow is mentioned below.
+
+<Steps>
+  <Step title="Generate Authentication Session Data">
+    The initial step involves generating the authentication session data using the user's address. This data includes the session key, sub-account ID, and public key.
+  </Step>
+  <Step title=" Register Account">
+    The user’s public key is registered with the platform. This involves generating a digital signature using the user’s private key.
+  </Step>
+  <Step title="Send Authentication Request">
+    ```jsx Auth Payload
+    {
+    "chainId": 42161,
+    "ethAddress": "0xB7FF7301159fB491821Bc126fCfd54dFFC0BbF2f",
+    "ethSignature": "0x617ee55cbfe815b08bc3243446e0a5aeb3bf1397f0468d6ef415467f73a48dc207fca5333fe049c0da4032fe8504a2950d751a6f725b04fd3b2829341fe546741c",
+    "expiryTs": 1723924122893,
+    "nonce": 2,
+    "signingKey": "0xC77572f175B541bE7F5273d0fd47F81eBc0b5b37",
+    "signingSignature": "0x7a6ca94459031e5829d72ad2bf3978a43298479933797d68362f336203d5a92c72e9dc88793135f26d5a01a74ae7acc8ea0ed7fba33bc85b54870df3471c62cc1b",
+    "subaccountId": "1_0xB7FF7301159fB491821Bc126fCfd54dFFC0BbF2f_1"
+    }
+    ```
+    The final step is sending an authentication request to the LogX Network's auth API with the necessary data such as the Ethereum address, signatures, and sub-account ID and receiving the logx_key and logx_secret.
+    ```json Auth Response
+    {
+  "body": {
+    "logx_key": "f88b017268b7421791f79c9eb07506e2",
+    "logx_secret": "268a8bf715dcc1642487805dbb9900665623013828df8eca53f8837818d78e3d"
+  },
+  "message": "Subaccount successfully registered",
+  "status": 200
+}
+
+    ```
+  </Step>
+</Steps>
+
+
+### **1. Generate Authentication Session Data**
+
+The authentication process starts by generating session data for the user.
+
+- **Components**:
+  - `sessionKey`: Generated using a new Ethereum wallet.
+  - `subAccountIdString` and `subAccountIdHash`: Created by hashing the user's address.
+  - `publicKey`: Derived from the user `address`.
+
+This session data forms the basis for subsequent steps and is crucial for establishing a secure session.
+
+### **2. Register Account**
+
+The next step is to register the account on the LogX Network:
+
+- A new Ethereum wallet is generated with a public key and a private key.
+- A `message` object is created containing details like the sub-account ID, user address, session key, and nonce.
+- The `domain` object contains domain-specific data like the contract name, version, chain ID, and verifying contract address.
+- The user signs the message with their Ethereum wallet to generate an `Ethereum signature`.
+- The private key is used to sign the message again using  producing a `signing signature`.
+- A POST request is then sent to the authentication API with all this data to register the account.
+
+### **3. Send Authentication Request**
+
+Finally, the authentication request is sent to the LogX Network's API:
+
+- The request payload includes the `chainId`, `ethAddress`, `ethSignature`, `expiryTs`, `nonce`, `signingKey`, `signingSignature`, and `subaccountId`.
+- Upon successful registration, the API responds with a `logx_key` and `logx_secret`, which are stored in the local storage for future authentication.
+
+## **Signing with EIP-712**
+
+The signing process uses EIP-712, a standard for typed structured data hashing and signing. It ensures that the signatures are both human-readable and secure, allowing for easier verification on the blockchain.
+### **Message Types**
+The message types are required for the EIP-712 algorithm to do a proper signing. Here is a list of all message types as JSON:
+```
+
+    EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+    ],
+    Register: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'userAddress', type: 'address' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'expiryTimeStamp', type: 'uint128' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    DepositRequest: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'tokenAddress', type: 'address' },
+        { name: 'tokenAmount', type: 'uint256' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    ClaimAndStakeRequest: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'tokenAddress', type: 'address' },
+        { name: 'tokenAmount', type: 'uint256' },
+        { name: 'stakerContract', type: 'address' },
+        { name: 'stakerAmount', type: 'uint256' },
+        { name: 'duration', type: 'uint256' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    StakeLogXRequest: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'productId', type: 'uint32' },
+        { name: 'tokenAmount', type: 'int128' },
+        { name: 'stakerContract', type: 'address' },
+        { name: 'duration', type: 'uint256' },
+        { name: 'startTime', type: 'uint256' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    UnstakeLogXRequest: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'productId', type: 'uint32' },
+        { name: 'stakerContract', type: 'address' },
+        { name: 'stakeId', type: 'bytes32' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    Withdraw: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'tokenAmount', type: 'uint256' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'destinationChainId', type: 'uint256' },
+        { name: 'bridgeOutContract', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    ClaimRewards: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'stakerContract', type: 'address' },
+        { name: 'productId', type: 'uint32' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    Order: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'priceX18', type: 'int128' },
+        { name: 'amount', type: 'int128' },
+        { name: 'expiration', type: 'uint64' },
+        { name: 'isReduce', type: 'bool' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'productId', type: 'uint32' },
+    ],
+    WithdrawCollateral: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'productId', type: 'uint32' },
+        { name: 'amount', type: 'uint128' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'destinationChainId', type: 'uint256' },
+        { name: 'receiver', type: 'address' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    SettleUserPnl: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    ClaimLogX: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'tokenAmount', type: 'int128' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+    WithdrawLogX: [
+        { name: 'subAccountId', type: 'bytes32' },
+        { name: 'tokenAmount', type: 'int128' },
+        { name: 'sessionKey', type: 'address' },
+        { name: 'destinationChainId', type: 'uint256' },
+        { name: 'bridgeOutContract', type: 'address' },
+        { name: 'nonce', type: 'uint128' },
+        { name: 'receiver', type: 'address' },
+        { name: 'chainId', type: 'uint256' },
+    ],
+
+```
+
+### **Defined Types**
+
+The `definedTypes` object is used to describe the types of data structures that can be signed using the EIP-712 standard. These include:
+
+- **Register**
+- **DepositRequest**
+- **ClaimAndStakeRequest**
+- **StakeLogXRequest**
+- **UnstakeLogXRequest**
+- **Withdraw**
+- **ClaimRewards**
+- **Order**
+- **WithdrawCollateral**
+- **SettleUserPnl**
+- **ClaimLogX**
+- **WithdrawLogX**
+
+These types ensure that all actions on the platform are cryptographically secure and verified on the blockchain.

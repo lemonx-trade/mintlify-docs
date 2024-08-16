@@ -1,0 +1,19 @@
+Welcome to the Logx Network API documentation. This guide provides the information you need to interact with the Logx Network API.
+
+## Base Endpoint
+
+All requests to the Logx Network API are made to the following base endpoint:
+
+`https://testnet-api.logx.network`
+
+## Authentication
+
+The Logx Network API uses different authentication methods depending on the endpoint. Here's a breakdown of the authentication requirements:
+
+-   **API Key and Secret**: Some endpoints require authentication using `logx-key` and `logx-secret`. You can obtain these credentials by using the `/auth` API endpoint.
+
+-   **Signature**: Some endpoints require a combination of `logx-key`, `logx-secret`, and a signature to verify the request.
+
+-   **No Authentication**: Certain endpoints are publicly accessible and do not require any authentication.
+
+For detailed information on how to authenticate API requests, please refer to the [Authentication Documentation](/user-flows/authentication).

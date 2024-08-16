@@ -1,0 +1,385 @@
+---
+title: Deposit / Withdrawal Flow
+icon: "money-bill-transfer"  
+---
+
+The deposit and withdrawal processes on the LogX Network involve several key steps to ensure secure and efficient transactions. This guide will walk you through the process of depositing and withdrawing tokens on the platform.
+## Deposit  Flow
+<Steps>
+  <Step title="Approve Token Spending">
+    Before you can deposit tokens, you need to approve the platform's smart contract to spend your tokens. This is done by interacting with the contract to grant the necessary permissions.
+
+    <Expandable title="Example Code">
+      <CodeGroup>
+
+    ```typescript Typescript
+        const approve = async (
+            signer: Signer,
+            chainId: number,
+            tokenSymbol: string,
+            amount?: string
+        ) => {
+            try {
+                const collateral = CHAIN_CONSTANTS.find(
+                    (chain) => chain.chainId === chainId
+                ).supported_collaterals.find((tk) => tk.symbol === tokenSymbol);
+                const hyp_erc20 = collateral.hyp_erc20;
+                const tokenContract = new Contract(
+                    collateral.address,
+                    erc20ABI,
+                    signer
+                );
+
+                const tx = await tokenContract.approve(
+                    hyp_erc20,
+                    amount ||
+                        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+                );
+                await tx.wait();
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        };
+    ```
+    ```python Python
+        def approve(signer, chain_id, token_symbol, amount=None):
+            try:
+                collateral = next(chain for chain in CHAIN_CONSTANTS if chain['chainId'] == chain_id)
+                supported_collateral = next(tk for tk in collateral['supported_collaterals'] if tk['symbol'] == token_symbol)
+                hyp_erc20 = supported_collateral['hyp_erc20']
+                token_contract = Contract(collateral['address'], erc20ABI, signer)
+
+                tx = token_contract.approve(
+                    hyp_erc20,
+                    amount or '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+                )
+                tx.wait()
+            except Exception as error:
+                print(error)
+                raise error
+    ```
+      </CodeGroup>
+    </Expandable>
+  </Step>
+
+  <Step title="Execute Deposit">
+    After token approval, you can proceed to deposit your tokens. This involves specifying the amount and confirming the transaction, which may include switching to the appropriate blockchain network if necessary.
+
+    <Expandable title="Example Code">
+      <CodeGroup>
+
+    ```typescript Typescript
+        const deposit = async (
+            address: string,
+            signer: Signer,
+            chainId: number,
+            tokenSymbol: string,
+            amount: string
+        ) => {
+            const { subAccountIdHash } = getSubAccountId(address);
+            const hyp_erc20 = CHAIN_CONSTANTS.find(
+                (chain) => chain.chainId === chainId
+            ).supported_collaterals.find((tk) => tk.symbol === tokenSymbol).hyp_erc20;
+            const contract = new Contract(hyp_erc20, HYP_ABI, signer);
+            const startTime = new Date().getTime();
+            const tx = await contract['transferRemote(uint32,bytes32,uint256)'](
+                LOGX_CHAIN_ID,
+                subAccountIdHash,
+                amount,
+                {
+                    value: chainId === SupportedChainId.ETHEREUM ? 1 : 0,
+                }
+            );
+            const chain = CHAIN_CONSTANTS.find((chain) => chain.chainId === chainId);
+            const receipt = await tx.wait();
+            if (receipt.status === 1) {
+                return;
+            } else {
+                throw new Error('error');
+            }
+        };
+    ```
+    ```python Python
+        def deposit(address, signer, chain_id, token_symbol, amount):
+            sub_account_id_hash = get_sub_account_id(address)
+            hyp_erc20 = next(
+                tk for tk in CHAIN_CONSTANTS if tk['chainId'] == chain_id
+            )['supported_collaterals'].find(lambda tk: tk['symbol'] == token_symbol)['hyp_erc20']
+            contract = Contract(hyp_erc20, HYP_ABI, signer)
+            start_time = time.time()
+            tx = contract.transferRemote(
+                LOGX_CHAIN_ID,
+                sub_account_id_hash,
+                amount,
+                {
+                    'value': 1 if chain_id == SupportedChainId.ETHEREUM else 0,
+                }
+            )
+            chain = next(chain for chain in CHAIN_CONSTANTS if chain['chainId'] == chain_id)
+            receipt = tx.wait()
+            if receipt.status == 1:
+                return
+            else:
+                raise Exception('Error')
+    ```
+      </CodeGroup>
+    </Expandable>
+  </Step>
+
+  <Step title="Confirm Deposit Transaction">
+    Once the deposit transaction is initiated, monitor the status to ensure it is successfully confirmed on the blockchain. In case of any errors, retry the process or seek support.
+  </Step>
+</Steps>
+
+### **1. Approve Token Spending**
+
+To begin the deposit process, the platform's smart contract must be authorized to spend your tokens. This ensures that the platform has the necessary permissions to transfer the tokens on your behalf.
+
+- **Action**: Interact with the smart contract to approve the token transfer.
+- **Consideration**: Ensure you have selected the correct token and network for the approval process.
+
+### **2. Execute Deposit**
+
+Once the token spending is approved, you can proceed with depositing your tokens into the LogX platform.
+
+- **Action**: Specify the amount of tokens to deposit and confirm the transaction.
+- **Consideration**: The platform may prompt you to switch networks if the deposit needs to occur on a different blockchain.
+
+### **3. Confirm Deposit Transaction**
+
+After initiating the deposit, monitor the transaction to ensure it is successfully confirmed on the blockchain.
+
+- **Action**: Check the transaction status through your wallet or the platform’s interface.
+
+## Withdrawal Flow
+
+<Steps>
+  <Step title="Initialize Withdrawal">
+    The withdrawal process begins by gathering the necessary authentication session data and preparing the message for the withdrawal request. This includes retrieving the session key, sub-account ID, and public key.
+
+    <Expandable title="Example Code">
+      <CodeGroup>
+
+    ```typescript Typescript
+        const withdrawLogX = async (
+            chainId: number,
+            address: string,
+            withdrawAmount: string,
+            tokenSymbol: string
+        ) => {
+            try {
+                const {
+                    sessionKey,
+                    logx_key,
+                    logx_secret,
+                    subAccountIdString,
+                    subAccountIdHash,
+                    nonce,
+                    publicKey,
+                } = await getAuthSessionData(address);
+                const primaryType = 'WithdrawCollateral';
+                const chain = CHAIN_CONSTANTS.find(
+                    (chain) => chain.chainId === chainId
+                );
+                const token = chain.supported_collaterals.find(
+                    (tk) => tk.symbol === tokenSymbol
+                );
+                const message = {
+                    subAccountId: subAccountIdHash,
+                    sessionKey: publicKey,
+                    productId: token.productId,
+                    amount: withdrawAmount,
+                    nonce,
+                    destinationChainId: chainId,
+                    receiver: address,
+                    chainId: LOGX_CHAIN_ID,
+                };
+                const domain = {
+                    name: 'LogX',
+                    version: '1',
+                    chainId: LOGX_CHAIN_ID,
+                    verifyingContract: ENDPOINT_CONTRACT_ADDRESS,
+                };
+                const signingSignature = await signWithEthers(
+                    sessionKey,
+                    domain,
+                    message,
+                    primaryType
+                );
+                // Additional steps for making the request
+            } catch (error) {
+                throw error;
+            }
+        };
+    ```
+    ```python Python
+        async def withdraw_logx(chain_id, address, withdraw_amount, token_symbol):
+            try:
+                session_data = await get_auth_session_data(address)
+                session_key = session_data['sessionKey']
+                logx_key = session_data['logx_key']
+                logx_secret = session_data['logx_secret']
+                sub_account_id_string = session_data['subAccountIdString']
+                sub_account_id_hash = session_data['subAccountIdHash']
+                nonce = session_data['nonce']
+                public_key = session_data['publicKey']
+
+                primary_type = 'WithdrawCollateral'
+                chain = next(chain for chain in CHAIN_CONSTANTS if chain['chainId'] == chain_id)
+                token = next(tk for tk in chain['supported_collaterals'] if tk['symbol'] == token_symbol)
+
+                message = {
+                    'subAccountId': sub_account_id_hash,
+                    'sessionKey': public_key,
+                    'productId': token['productId'],
+                    'amount': withdraw_amount,
+                    'nonce': nonce,
+                    'destinationChainId': chain_id,
+                    'receiver': address,
+                    'chainId': LOGX_CHAIN_ID,
+                }
+
+                domain = {
+                    'name': 'LogX',
+                    'version': '1',
+                    'chainId': LOGX_CHAIN_ID,
+                    'verifyingContract': ENDPOINT_CONTRACT_ADDRESS,
+                }
+
+                signing_signature = await sign_with_ethers(
+                    session_key,
+                    domain,
+                    message,
+                    primary_type
+                )
+                # Additional steps for making the request
+            except Exception as error:
+                raise error
+    ```
+
+      </CodeGroup>
+    </Expandable>
+  </Step>
+
+  <Step title="Sign Withdrawal Request">
+    Next, you need to sign the withdrawal request using the EIP-712 standard. This involves creating a message containing details such as the sub-account ID, session key, and amount to withdraw. The message is then signed using the user's session key.
+
+    <Expandable title="Example Code">
+      <CodeGroup>
+
+    ```typescript Typescript
+        const signingSignature = await signWithEthers(
+            sessionKey,
+            domain,
+            message,
+            primaryType
+        );
+    ```
+    ```python Python
+        signing_signature = await sign_with_ethers(
+            session_key,
+            domain,
+            message,
+            primary_type
+        )
+    ```
+
+      </CodeGroup>
+    </Expandable>
+  </Step>
+
+  <Step title="Send Withdrawal Request">
+    Once the message is signed, the final step is to send the withdrawal request to the LogX Network's API. This includes sending the signed message along with other necessary headers such as the session key, LogX key, and LogX secret.
+
+    <Expandable title="Example Code">
+      <CodeGroup>
+
+    ```typescript Typescript
+        const res = await fetch(
+            `${process.env.NEXT_PUBLIC_INFRA_BASE_URL}/api/v1/token/withdrawCollateral`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    subAccountId: subAccountIdString,
+                    sessionKey: publicKey,
+                    productId: token.productId,
+                    amount: withdrawAmount,
+                    nonce,
+                    destinationChainId: chainId,
+                    receiver: address,
+                    chainId: LOGX_CHAIN_ID,
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'broker-id': '1',
+                    'logx-signer-address': publicKey,
+                    'logx-user-address': address,
+                    'logx-timestamp': new Date().getTime().toString(),
+                    'logx-key': logx_key,
+                    'logx-secret': logx_secret,
+                    'logx-signature': signingSignature,
+                },
+            }
+        );
+        if (!res.ok) {
+            throw new Error('Failed to withdraw');
+        }
+        return await res.json();
+    ```
+    ```python Python
+        res = await fetch(
+            f"{os.getenv('NEXT_PUBLIC_INFRA_BASE_URL')}/api/v1/token/withdrawCollateral",
+            {
+                'method': 'POST',
+                'body': json.dumps({
+                    'subAccountId': sub_account_id_string,
+                    'sessionKey': public_key,
+                    'productId': token['productId'],
+                    'amount': withdraw_amount,
+                    'nonce': nonce,
+                    'destinationChainId': chain_id,
+                    'receiver': address,
+                    'chainId': LOGX_CHAIN_ID,
+                }),
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'broker-id': '1',
+                    'logx-signer-address': public_key,
+                    'logx-user-address': address,
+                    'logx-timestamp': str(int(time.time() * 1000)),
+                    'logx-key': logx_key,
+                    'logx-secret': logx_secret,
+                    'logx-signature': signing_signature,
+                },
+            }
+        )
+        if not res.ok:
+            raise Exception('Failed to withdraw')
+        return await res.json()
+    ```
+
+      </CodeGroup>
+    </Expandable>
+  </Step>
+
+
+</Steps>
+
+### **Step 1: Initialize Withdrawal**
+
+**Action**: Gather session data and prepare a message for the withdrawal request.
+
+**Consideration**: This data includes key elements such as the session key, sub-account ID, and public key, which are necessary for creating a valid withdrawal request.
+
+### **Step 2: Sign Withdrawal Request**
+
+**Action**: Sign the withdrawal request using the EIP-712 standard.
+
+**Consideration**: Ensure that the signature is generated from the correct session key to prove that the withdrawal request is coming from the rightful owner of the account.
+
+### **Step 3: Send Withdrawal Request**
+
+**Action**: Send the signed message along with the necessary headers to the LogX Network’s API to initiate the withdrawal.
+
+

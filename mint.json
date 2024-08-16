@@ -1,0 +1,128 @@
+{
+    "$schema": "https://mintlify.com/schema.json",
+    "name": "LogX Network",
+    "logo": {
+        "dark": "/logo/logx-social-dark.svg",
+        "light": "/logo/logx-social-white.svg"
+    },
+    "favicon": "/logx_favicon.svg",
+    "colors": {
+        "primary": "#0D9373",
+        "light": "#07C983",
+        "dark": "#0D9373",
+        "anchors": {
+            "from": "#0D9373",
+            "to": "#07C983"
+        }
+    },
+    "topbarLinks": [
+        {
+            "name": "Support",
+            "url": "https://discord.gg/logx"
+        }
+    ],
+    "tabs": [
+        {
+            "name": "API Reference",
+            "url": "api-reference"
+        }
+    ],
+    "navigation": [
+        {
+            "group": "Getting Started",
+            "pages": ["logx-network", "quickstart", "logx-edge", "roadmap"]
+        },
+        {
+            "group": "Smart Contract Overview",
+            "pages": [
+                "smart-contracts/contract-address",
+                "smart-contracts/contract-flow"
+            ]
+        },
+        {
+            "group": "Trade on LogX",
+            "pages": [
+                "trading-basics/logx-architecture",
+                "trading-basics/perpetual-futures",
+                "trading-basics/prediction-markets",
+                "trading-basics/token-staking-and-vesting",
+                {
+                    "group": "Trading Terms",
+                    "icon": "book",
+                    "pages": [
+                        "trading-terms/buying-power",
+                        "trading-terms/open-interest",
+                        "trading-terms/fee-structure",
+                        "trading-terms/liquidations"
+                    ]
+                }
+            ]
+        },
+        {
+            "group": "User Flows",
+            "pages": [
+                "user-flows/authentication",
+                "user-flows/deposit-withdraw"
+            ]
+        },
+        {
+            "group": "Supported Chains and Markets",
+            "pages": [
+                "smart-contracts/supported-chains",
+                "smart-contracts/supported-markets",
+                "smart-contracts/supported-colllateral"
+            ]
+        },
+
+        {
+            "group": "API Documentation",
+            "pages": [
+                "api-reference/introduction",
+                {
+                    "group": "Registration",
+                    "pages": ["api-reference/endpoint/register-account"]
+                },
+                {
+                    "group": "Markets",
+                    "pages": [
+                        "api-reference/endpoint/fetch-supported-markets",
+                        "api-reference/endpoint/fetch-funding-rates",
+                        "api-reference/endpoint/fetch-quotes"
+                    ]
+                },
+                {
+                    "group": "Order Management",
+                    "pages": [
+                        "api-reference/endpoint/create-order",
+                        "api-reference/endpoint/delete-order",
+                        "api-reference/endpoint/fetch-orders"
+                    ]
+                },
+                {
+                    "group": "Positions",
+                    "pages": ["api-reference/endpoint/fetch-positions"]
+                },
+                {
+                    "group": "Withdraw",
+                    "pages": [
+                        "api-reference/endpoint/withdrawable-balance",
+                        "api-reference/endpoint/withdraw-token-balance"
+                    ]
+                },
+                {
+                    "group": "Nonce",
+                    "pages": ["api-reference/endpoint/fetches-nonce"]
+                },
+                {
+                    "group": "User data",
+                    "pages": ["api-reference/endpoint/user-data"]
+                }
+            ]
+        }
+    ],
+    "footerSocials": {
+        "x": "https://x.com/LogX_trade",
+        "github": "https://github.com/eugenix-io",
+        "discord": "https://discord.gg/logx"
+    }
+}
