@@ -2,10 +2,10 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "LemonX",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/cropped_400x400.svg",
+    "light": "/cropped_400x400.svg"
   },
-  "favicon": "/favicon.ico",
+  "favicon": "/lemonx_logo.svg",
   "colors": {
     "primary": "#0D9373",
     "light": "#07C983",
@@ -17,7 +17,7 @@
   },
   "topbarLinks": [
     {
-      "name": "Support",
+      "name": "Discord",
       "url": "https://discord.com/invite/c8skmcTJYP"
     }
   ],
