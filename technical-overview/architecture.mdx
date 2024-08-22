@@ -1,0 +1,104 @@
+---
+title: 'Architecture'
+description: 'Detailed explanation of the trade execution workflow on LemonX.'
+---
+
+# Trade Execution Process Overview
+
+The following steps outline the precise process involved when a user initiates a long or short trade on LemonX, ensuring clarity and transparency in trade execution.
+
+<Frame caption="Trade Execution Architecture Diagram">
+  <img src="/images/trade-diagram.png"/>
+</Frame>
+
+<AccordionGroup>
+  <Accordion title="Step 1: User Trade Request">
+    **Action**: The user initiates a request for a trade, choosing either a long or short position via the user interface.
+  </Accordion>
+
+  <Accordion title="Step 2: Order Management">
+    **Processing**: The `OrderManager` handles the request and calls `createIncreasePosition()` to begin the order creation.
+  </Accordion>
+
+  <Accordion title="Step 3: Price Fetching">
+    **Price Retrieval**: Prices are fetched in real-time from a price oracle, ensuring that the trade will be executed based on accurate and current market data.
+  </Accordion>
+
+  <Accordion title="Step 4: Order Validation and Execution">
+    **Validation**: The `OrderManager` validates the trade against current market conditions.
+    **Execution Preparation**: Prepares for executing the trade.
+  </Accordion>
+
+  <Accordion title="Step 5: Execution Handling">
+    **Execution**: Executor bots pick up the validated trade details and proceed to execute.
+  </Accordion>
+
+  <Accordion title="Step 6: Position Updates and Data Integration">
+    **Position Update**: Post-execution, the `Vault` updates the trader's position to reflect the new state.
+    **Data Integration**: The system integrates essential data from a PostgreSQL database to support the execution.
+  </Accordion>
+</AccordionGroup>
+
+
+# Buying LemonXLP
+The minting process for LemonXLP is a streamlined sequence of actions integrating user inputs with backend processes to ensure efficient token creation.
+
+<Frame caption="Minting LemonXLP Process Diagram">
+  <img src="/images/buying-lemonxlp.png" />
+</Frame>
+
+<AccordionGroup>
+  <Accordion title="Step 1: Request Initiation">
+    - Users initiate the minting process by executing `createMintRequest()`.
+    - Executor bots then pick up this request and immediately proceed to fetch the latest prices from the price oracle.
+  </Accordion>
+
+  <Accordion title="Step 2: Price Setting">
+    - Executor bots set the necessary prices by invoking `setPricesAndExecuteLPRequests()` within the PriceFeed contract
+    - Ensuring all prices are up-to-date before executing any trades.
+  </Accordion>
+
+  <Accordion title="Step 3: Trade Execution">
+    - The PriceFeed contract calls `executeMintRequests()` on the RewardRouter
+    - RewardRouter then triggers `addLiquidityForAccount()` in the LLP Manager to start the liquidity addition process.
+  </Accordion>
+
+  <Accordion title="Step 4: Token Generation">
+    - The LLP Manager buys USDL from the Vault. 
+    - The Vault mints USDL and sends it back to the LLP Manager, who uses it to mint LLP tokens.
+  </Accordion>
+
+  <Accordion title="Step 5: Completion">
+    Finally, the freshly minted LLP tokens are transferred to the user's account, completing the minting process.
+  </Accordion>
+</AccordionGroup>
+
+
+# Staking LemonXLP
+The process of staking LemonXLP involves a series of automated actions and user interactions designed to facilitate the earning of APR yields through the RewardTracker system.
+
+<Frame caption="Minting LemonXLP Process Diagram">
+  <img src="/images/stake-diagram.png" />
+</Frame>
+
+<AccordionGroup>
+  <Accordion title="Step 1: User Initiates Staking">
+    The user requests to stake their LemonXLP tokens through the platform's interface by executing the `stakeLp()` function.
+  </Accordion>
+
+  <Accordion title="Step 2: Staking Request Processing">
+    The `RewardRouter` receives the staking request and proceeds with the execution by calling `executeMintRequests()`, which manages the minting and staking actions.
+  </Accordion>
+
+  <Accordion title="Step 3: Price Retrieval and Setting">
+    During the process, executor bots fetch the latest prices from the price oracle and set the prices in the system using `setPricesAndExecuteLPRequests()` function within the PriceFeed contract.
+  </Accordion>
+
+  <Accordion title="Step 4: Reward Allocation">
+    The `RewardRouter` then calls `stakeForAccount()` in the RewardTracker to manage the stake based on the current prices and the amount staked by the user.
+  </Accordion>
+
+  <Accordion title="Step 5: Finalizing Staking and Rewards Transfer">
+    On successful execution, the RewardTracker updates the user's staking details and transfers the appropriate LLP tokens as rewards to the user's account. This final step ensures that users receive their APR yields accordingly.
+  </Accordion>
+</AccordionGroup>
