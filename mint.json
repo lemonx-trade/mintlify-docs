@@ -59,7 +59,6 @@
       "group": "Technical Details",
       "pages": [
         "technical-overview/architecture",
-        "technical-overview/contracts",
         "technical-overview/security"
       ]
     }
