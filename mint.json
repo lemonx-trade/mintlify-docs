@@ -27,15 +27,40 @@
   },
   "tabs": [
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "Trading Mechanics",
+      "url": "trading-mechanics"
+    },
+    {
+      "name": "Technical Overview",
+      "url": "technical-overview"
+    },
+    {
+      "name": "Liquidity Management",
+      "url": "liquidity-management"
     }
   ],
   "navigation": [
     {
-      "group": "Get Started",
+      "group": "Introduction",
       "pages": [
-        "home"
+        "introduction",
+        "overview"
+      ]
+    },
+    {
+      "group": "Trading Mechanics",
+      "pages": [
+        "trading-mechanics/orders",
+        "trading-mechanics/liquidity",
+        "trading-mechanics/fees"
+      ]
+    },
+    {
+      "group": "Technical Details",
+      "pages": [
+        "technical-overview/architecture",
+        "technical-overview/contracts",
+        "technical-overview/security"
       ]
     }
   ],
