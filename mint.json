@@ -7,8 +7,8 @@
   },
   "favicon": "/lemonx_logo.svg",
   "colors": {
-    "primary": "#f2a900",
     "light": "#f2a900",
+    "primary": "#f2a900",
     "dark": "#f2a900",
     "anchors": {
       "from": "#f2a900",
