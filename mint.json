@@ -3,7 +3,8 @@
   "name": "LemonX",
   "logo": {
     "dark": "/cropped_400x400.svg",
-    "light": "/dark-circular-lemonx-logo-bit-bigger.svg"
+    "light": "/dark-circular-lemonx-logo-bit-bigger.svg",
+    "href": "https://app.lemonx.trade/"
   },
   "favicon": "/lemonx_logo.svg",
   "colors": {
@@ -22,6 +23,7 @@
     }
   ],
   "topbarCtaButton": {
+    "type": "link",
     "name": "Launch App",
     "url": "https://app.lemonx.trade/"
   },

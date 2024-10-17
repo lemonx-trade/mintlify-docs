@@ -10,14 +10,24 @@ import { Tabs, Tab, Accordion } from '@mintlify/components';
 LemonX employs a dynamic fee structure that adjusts based on the leverage applied to a trade. This ensures that traders can optimize their strategies based on cost efficiency and market conditions.
 
 <Tabs>
-  <Tab title="Under 20x Leverage">
+  <Tab title="Under 10x Leverage">
+    Using leverage under 10x incurs a fee of **15 basis points**.
+    <Card title="Fee Calculation">
+      - **Leverage:** `5x`
+      - **Fee Rate:** `15` basis points or `(0.15%)`
+      - **Collateral:** `$100` 
+      - **Position Size**: `$500`
+      - **Fee:** `$0.75`
+    </Card>
+  </Tab>
+  <Tab title="10x to 20x Leverage">
     Using leverage under 20x incurs a fee of **10 basis points**.
     <Card title="Fee Calculation">
-      - **Leverage:** `10x`
+      - **Leverage:** `15x`
       - **Fee Rate:** `10` basis points or `(0.1%)`
       - **Collateral:** `$100` 
-      - **Position Size**: `$1000`
-      - **Fee:** `$1`
+      - **Position Size**: `$1500`
+      - **Fee:** `$1.5`
     </Card>
   </Tab>
    <Tab title="20x to 30x Leverage">
@@ -31,23 +41,23 @@ LemonX employs a dynamic fee structure that adjusts based on the leverage applie
     </Card>
   </Tab>
   <Tab title="30x to 40x Leverage">
-    Using leverage between 30x-40x incurs a fee of **5 basis points**.
+    Using leverage between 30x-40x incurs a fee of **6 basis points**.
     <Card title="Fee Calculation">
       - **Leverage:** `35x`
-      - **Fee Rate:** `5` basis points or `(0.05%)`
+      - **Fee Rate:** `6` basis points or `(0.06%)`
       - **Collateral:** `$100`
       - **Position Size**: `$3500`
-      - **Fee:** `$1.75`
+      - **Fee:** `$2.1`
     </Card>
   </Tab>
   <Tab title="Over 40x Leverage">
-    Using leverage over 40x incurs a fee of **2 basis points**.
+    Using leverage over 40x incurs a fee of **4 basis points**.
     <Card title="Fee Calculation">
-      - **Leverage:** `50x`
-      - **Fee Rate:** `2` basis points or `(0.02%)`
+      - **Leverage:** `45x`
+      - **Fee Rate:** `4` basis points or `(0.04%)`
       - **Collateral:** `$100`
       - **Position Size**: `$5000`
-      - **Fee:** `$1`
+      - **Fee:** `$2`
     </Card>
   </Tab>
 </Tabs>
